@@ -3,76 +3,62 @@
 int game_loop()
 {
   int rows = 25,columns = 80;
-  TBufferPointer current_render_buffer=NULL, preview_render_buffer=NULL;
-  
+  TBufferPointer *current_render_buffer=NULL, *preview_render_buffer=NULL;
+  char key='1';
+
   preview_render_buffer=create_buffer(rows,columns);
   initialize_buffer(preview_render_buffer, rows, columns);
 
-  current_render_buffer=create_buffer(rows,columns);
+  current_render_buffer=(TBufferPointer*)create_buffer(rows,columns);
   initialize_buffer(current_render_buffer, rows, columns);
   
-  printf("\nfirst pointer : %p\nsecond pointer :%p\n",preview_render_buffer,current_render_buffer);
+  while(key!='q' && key!='Q')
+  {
+
+    render_display_buffer(current_render_buffer,rows,columns);
   
-  render_display_buffer(current_render_buffer,rows,columns);
+    printf("\nBefore swapping:\n\tfirst pointer : %p\n\tsecond pointer :%p\n",preview_render_buffer,current_render_buffer);
+    
+    calculate_rendering_state(current_render_buffer,preview_render_buffer,rows,columns);
+
+    swap_display_buffer(&preview_render_buffer, &current_render_buffer);
+    
+    printf("\nAfter swapping:\n\tfirst pointer : %p\n\tsecond pointer :%p\n",preview_render_buffer,current_render_buffer);
+
+    key=getchar();
+  }
 
   release_buffer(current_render_buffer,rows);
   release_buffer(preview_render_buffer,rows);
+  
   return 0;
 }
 
-void* create_buffer(int rows,int columns)
-{ 
-  TBufferPointer buffer_pointer=NULL;
-  size_t buffer_size=0;
-
-  buffer_size=rows*sizeof(int*);
-  buffer_pointer=(TBufferPointer) malloc(buffer_size);
-
-  for(int i=0; i<rows; i++)
-    buffer_pointer[i]=(int*) malloc(columns*sizeof(int));
-
-  return buffer_pointer;
-}
-
-void release_buffer(void* releasing_buffer, int rows)
+void calculate_rendering_state(void* current_rendered_buffer,void* future_buffer_for_rendering, int rows, int columns)
 {
-  TBufferPointer buffer_pointer=NULL;
-  buffer_pointer=(TBufferPointer) releasing_buffer;
+  int neighbors_count=0;
+  int height=0,width=0;
 
-  for(int i=0;i<rows;i++)
-    free(buffer_pointer[i]);
+  TBufferPointer* current_pointer=NULL;
+  TBufferPointer* future_pointer=NULL;
 
-  free(buffer_pointer);
-}
+  height=rows;
+  width=columns;
 
-void initialize_buffer(void* buffer, int rows, int columns)
-{
-  TBufferPointer buffer_pointer=NULL;
-  buffer_pointer=(TBufferPointer) buffer;
+  current_pointer=(TBufferPointer*)current_rendered_buffer;
+  future_pointer=(TBufferPointer*)future_buffer_for_rendering;
 
-  for(int i=0; i<rows;i++)
-    for(int j=0; j<columns; j++)
-      buffer_pointer[i][j]=0;
-}
+  for(int y=0; y<rows; y++)
+    for(int x=0;x<columns; x++)
+    {
+      for(int yn=-1;yn<2;yn++)
+        for(int xn=-1;xn<2;xn++)
+          if(yn!=0 && xn!=0)
+            neighbors_count+=current_pointer[(height+(y-yn))%height][(width+(x-xn))%width];
 
-void swap_display_buffer()
-{
-
-}
-
-void render_display_buffer(void* rendering_buffer, int rows, int columns)
-{
-  TBufferPointer buffer_pointer=NULL;
-  buffer_pointer=(TBufferPointer) rendering_buffer;
-
-  for(int i=0;i<rows;i++){
-    for(int j=0;j<columns;j++)
-      putchar(buffer_pointer[i][j]);
-    putchar('\n');
-  }
-}
-
-void calculate_rendering_state(void* preview_rendered_buffer,void* current_buffer_for_rendering)
-{
-
+      if(neighbors_count==3)future_pointer[y][x]=1;
+      else if(neighbors_count<2 || neighbors_count>3) future_pointer[y][x]=0;
+      else future_pointer[y][x]=current_pointer[y][x];
+      neighbors_count=0;
+    }
 }
