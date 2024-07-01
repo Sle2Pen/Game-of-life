@@ -1,7 +1,6 @@
 #include "game.h"
 
-int main(int argc, const char* argv[]){
+int main(void){
   int res = game_loop();
-	printf("Hello, World!");
-	return 0;
+  return 0;
 }
