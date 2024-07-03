@@ -11,7 +11,10 @@ void set_keypress(void)
   new_settings.c_lflag &=(~ICANON);
   new_settings.c_cc[VTIME]=0;
   new_settings.c_cc[VMIN]=1;
-
+  
+  new_settings.c_lflag &= ~ECHO;
+  tcsetattr(fileno(stdin), 0, &new_settings);
+  //if(tcgetattr(STDIN_FILENO, &new_settings) < 0) printf("something wrong"); 
   tcsetattr(0,TCSANOW,&new_settings);
   //??return;
 }
@@ -19,6 +22,10 @@ void set_keypress(void)
 void reset_keypress(void)
 {
   tcsetattr(0,TCSANOW,&stored_settings);
+
+  //а тут снова включаем эхо
+  //term.c_lflag |= ECHO;
+  //tcsetattr(fileno(stdin), 0, &term);
   //??return;
 }
 
