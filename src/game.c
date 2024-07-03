@@ -3,10 +3,12 @@
 int game_loop()
 {
   int rows = 25,columns = 80;
-  int return_val=0;
-  TBufferPointer *current_render_buffer=NULL, *future_render_buffer=NULL;
+  int return_val=0,menu_loading_result=0;
+  TBufferPointer *current_render_buffer=NULL, *future_render_buffer=NULL, *menu_render_buffer=NULL;
   char key='1';
-  int counter=0;
+  char menu_path[]="game.menu";
+  int pause=1000000;
+  //int counter=0;
   
   current_render_buffer=(TBufferPointer*)create_buffer(rows,columns);
   initialize_buffer(current_render_buffer, rows, columns);
@@ -17,31 +19,59 @@ int game_loop()
   fill_buffer(current_render_buffer, rows, columns);
   
   freopen("/dev/tty","r",stdin);
-  set_keypress(); 
   
-  while(key!='q' && key!='Q')
+  menu_render_buffer=(TBufferPointer*) create_buffer(rows,MENU_WIDTH);
+  initialize_buffer(menu_render_buffer, rows, MENU_WIDTH);
+  menu_loading_result=load_file(menu_render_buffer,rows,MENU_WIDTH,menu_path);
+ 
+  if(menu_loading_result!=0)printf("problems with reading game.menu in src/");
+  else
   {
+    set_keypress(); 
+  
+    while(key!='q' && key!='Q')
+    {
 
-    printf("\n\nrender---------------------%d\n\n",counter++);
+      system("clear");
+      //printf("\n\nrender---------------------%d\n\n",counter++);
     
-    render_display_buffer(current_render_buffer,rows,columns);
+      render_display(current_render_buffer,rows,columns,menu_render_buffer);
 
-    calculate_rendering_state(current_render_buffer,future_render_buffer,rows,columns);
+      calculate_rendering_state(current_render_buffer,future_render_buffer,rows,columns);
 
-    swap_display_buffer(&current_render_buffer, &future_render_buffer);
-    set_pause_in_microseconds(100000);
+      swap_display_buffer(&current_render_buffer, &future_render_buffer);
 
-    return_val=wait_keypress();
-    if(return_val)
-    key=getchar();
+      set_pause_in_microseconds(pause);
+
+      return_val=wait_keypress();
+      if(return_val)
+      key=getchar();
+
+      switch(key)
+      {
+        case '+':
+          if(pause>0)
+            pause-=50000;
+          else
+            pause=0;
+          key='1';
+          break;
+        case '-':
+            pause+=50000;
+          key='1';
+          break;
+      }
+    }
+
+    reset_color();
+  
+    reset_keypress();
   }
-
-  reset_color();
-  
-  reset_keypress();
-  
   release_buffer(current_render_buffer,rows);
   release_buffer(future_render_buffer,rows);
+  release_buffer(menu_render_buffer,rows);
+  
+  system("clear");
   
   return 0;
 }
