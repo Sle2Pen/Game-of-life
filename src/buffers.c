@@ -51,10 +51,13 @@ void release_buffer(void* releasing_buffer, int rows)
 {
   TBufferPointer* buffer_pointer=NULL;
   buffer_pointer=(TBufferPointer*) releasing_buffer;
+  
+  if(releasing_buffer!=NULL)
+  {
+    for(int y=0;y<rows;y++)
+      free(buffer_pointer[y]);
 
-  for(int y=0;y<rows;y++)
-    free(buffer_pointer[y]);
-
-  free(buffer_pointer);
+    free(buffer_pointer);
+  }
 }
 

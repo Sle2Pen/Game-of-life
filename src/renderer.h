@@ -4,13 +4,19 @@
 #define set_display_attrib(color) printf(ESC "[%sm",color)
 #define reset_color() printf(ESC "[0m")
 
-//foreground ansi colors: \033[38;2;<r>;<g>;<b>m
-//background ansi colors: \033[48;2;<r>;<g>;<b>m
+////foreground ansi colors: \033[38;2;<r>;<g>;<b>m
+////background ansi colors: \033[48;2;<r>;<g>;<b>m
 #define SCREEN_BACKGROUND "48;2;192;192;192"
 #define SCREEN_FIELDS_BACKGROUND "48;2;255;255;255"
 #define LIFE_CELL_BACKGROUND "48;2;123;104;238"
 #define SCREEN_FOREGROUND "38;2;0;0;0"
 
+/*#define SCREEN_BACKGROUND "48;2;144;238;144"
+#define SCREEN_FIELDS_BACKGROUND "48;2;240;230;140"
+//#define LIFE_CELL_BACKGROUND "48;2;255;165;0"
+#define LIFE_CELL_BACKGROUND "48;2;255;182;193"
+#define SCREEN_FOREGROUND "38;2;0;0;0"
+*/
 #define SCREEN_BORDER_HEIGHT 1
 #define SCREEN_BORDER_WIDTH 2
 //FOR NOW IS MACROS

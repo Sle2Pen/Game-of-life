@@ -10,23 +10,44 @@ int game_loop()
   int pause=1000000;
   //int counter=0;
   
+  int error_flag=0;
+  
   current_render_buffer=(TBufferPointer*)create_buffer(rows,columns);
-  initialize_buffer(current_render_buffer, rows, columns);
+  if(current_render_buffer==NULL) 
+  {
+    printf("Houston, we got a problem...with first buffer\n");
+    error_flag++;
+  }
+  else
+    initialize_buffer(current_render_buffer, rows, columns);
   
   future_render_buffer=(TBufferPointer*)create_buffer(rows,columns);
-  initialize_buffer(future_render_buffer, rows, columns);
+  if(future_render_buffer==NULL)
+  {
+    printf("Houston, we got a problem...with second buffer\n");
+    error_flag++;
+  }
+  else
+    initialize_buffer(future_render_buffer, rows, columns);
 
-  fill_buffer(current_render_buffer, rows, columns);
-  
-  freopen("/dev/tty","r",stdin);
   
   menu_render_buffer=(TBufferPointer*) create_buffer(rows,MENU_WIDTH);
-  initialize_buffer(menu_render_buffer, rows, MENU_WIDTH);
-  menu_loading_result=load_file(menu_render_buffer,rows,MENU_WIDTH,menu_path);
- 
-  if(menu_loading_result!=0)printf("problems with reading game.menu in src/");
-  else
+  if(menu_render_buffer==NULL)
   {
+    printf("Houston, we got a problem...with menu buffer\n");
+    error_flag++;
+  }
+  else
+    initialize_buffer(menu_render_buffer, rows, MENU_WIDTH);
+
+  if(error_flag==0)
+  {
+    fill_buffer(current_render_buffer, rows, columns);
+
+    freopen("/dev/tty","r",stdin);
+
+    menu_loading_result=load_file(menu_render_buffer,rows,MENU_WIDTH,menu_path);
+
     set_keypress(); 
   
     while(key!='q' && key!='Q')

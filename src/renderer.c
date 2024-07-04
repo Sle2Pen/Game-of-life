@@ -46,7 +46,6 @@ void render_display(void* rendering_buffer, int rows, int columns, void* menu_bu
     for(int x=0;x<screen_width;x++)
     {
       current_value=screen_buffer[y][x];
-
       switch(current_value)
       {
         case 0:
